@@ -99,31 +99,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Enhanced hover effects with 3D transforms
+    // Enhanced hover effects with 3D transforms (desktop only)
     const cards = document.querySelectorAll('.value-card, .feature-card, .service-card');
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', function(e) {
-            const rect = this.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+    const isMobile = window.innerWidth <= 768;
+    
+    if (!isMobile) {
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+            });
             
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = (y - centerY) / 10;
-            const rotateY = (centerX - x) / 10;
-            
-            this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
+            });
         });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
+    } else {
+        // Mobile-friendly touch interactions
+        cards.forEach(card => {
+            card.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            card.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
         });
-    });
+    }
 
-    // Parallax effect for hero section
+    // Parallax effect for hero section (desktop only)
     const heroBackground = document.querySelector('.hero-background');
-    if (heroBackground) {
+    if (heroBackground && window.innerWidth > 768) {
         window.addEventListener('scroll', function() {
             const scrolled = window.pageYOffset;
             const rate = scrolled * -0.5;
@@ -207,12 +222,17 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(notificationStyle);
 
-    // Floating particles function
+    // Floating particles function (desktop only)
     function createFloatingParticles() {
         const hero = document.querySelector('.hero');
         if (!hero) return;
+        
+        // Only create particles on desktop
+        if (window.innerWidth <= 768) return;
 
-        for (let i = 0; i < 20; i++) {
+        const particleCount = window.innerWidth > 1200 ? 20 : 10;
+        
+        for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
             particle.className = 'floating-particle';
             particle.style.cssText = `
